@@ -67,7 +67,7 @@ public class WordTagger {
      * @since JDK 1.8
      */
     public static void main(String[] args) {
-        List<String> testList = new ArrayList<>();
+        List<String> testList = new ArrayList<String>();
         WordTagger wt = new WordTagger();
         testList.add("saltwater");
         testList.add("tails");

@@ -186,7 +186,6 @@ public class WordAnalyse {
         }
 
         /** * @see java.lang.Comparable#compareTo(java.lang.Object) */
-        @Override
         public int compareTo(WordEntry o) {
             if (this.score > o.score) {
                 return -1;
