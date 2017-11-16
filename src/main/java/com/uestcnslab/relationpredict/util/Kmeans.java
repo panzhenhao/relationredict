@@ -11,7 +11,8 @@ package com.uestcnslab.relationpredict.util;
 
 import java.util.Arrays;
 import java.util.Random;
-import java.util.Scanner;
+
+import org.apache.log4j.Logger;
 
 import com.uestcnslab.relationpredict.model.WordVecPoint;
 
@@ -21,10 +22,23 @@ import com.uestcnslab.relationpredict.model.WordVecPoint;
  */
 
 public class Kmeans {
+    /**
+     * @Fields logger : 日志模型
+     */
+    Logger                        logger  = Logger.getLogger("Kmeans");
 
-    private static WordVecPoint[] allPoint;      // 点集
-    private static WordVecPoint[] oldCore = null;// old聚类中心
-    private static WordVecPoint[] newCore = null;// new聚类中心
+    /**
+     * 待聚类的点集
+     */
+    private static WordVecPoint[] allPoint;
+    /**
+     * old聚类中心
+     */
+    private static WordVecPoint[] oldCore = null;
+    /**
+     * new聚类中心
+     */
+    private static WordVecPoint[] newCore = null;
 
     /**
      * initOldCore:初始化聚类中心. <br/>
@@ -36,8 +50,8 @@ public class Kmeans {
      * @since JDK 1.8
      */
     public void initOldCore(int core) {
-        this.oldCore = new WordVecPoint[core];// 存放聚类中心
-        this.newCore = new WordVecPoint[core];
+        Kmeans.oldCore = new WordVecPoint[core];// 存放聚类中心
+        Kmeans.newCore = new WordVecPoint[core];
 
         Random rand = new Random();
         int temp[] = new int[core];
@@ -55,7 +69,6 @@ public class Kmeans {
                 if (temp[j] == thistemp) {
                     flage = 1;// 有重复
                     break;
-
                 }
             }
             if (flage == 1) {
@@ -67,13 +80,11 @@ public class Kmeans {
                 //聚类中心标记
                 oldCore[i].setFlag(0);
             }
-
         }
         System.out.println("初始聚类中心：");
         for (int i = 0; i < oldCore.length; i++) {
-            System.out.println(Arrays.toString(oldCore[i].getVector()));
+            logger.info(Arrays.toString(oldCore[i].getVector()));
         }
-
     }
 
     /**
@@ -83,119 +94,157 @@ public class Kmeans {
      *
      * @since JDK 1.8
      */
-    public void searchBelong() {
-
+    private void searchBelong() {
         for (int i = 0; i < allPoint.length; i++) {
             double dist = 999;
             int lable = -1;
             for (int j = 0; j < oldCore.length; j++) {
-
-                double distance = pointDistance(allPoint[i], oldCore[j]);
+                double distance = Distance.pointDistance(allPoint[i], oldCore[j]);
                 if (distance < dist) {
                     dist = distance;
                     lable = j;
                     // po[i].flage = j + 1;// 1,2,3......
-
                 }
             }
             allPoint[i].setFlag(lable + 1);
-
         }
-
     }
 
-    // 更新聚类中心
-    public void renewCore() {
-
-        for (int i = 0; i < allPoint.length; i++) {
-            System.out.println("以<" + Arrays.toString(oldCore[i].getVector())+ ">为中心的点：");
+    /**
+     * renewCore: 更新聚类中心. <br/>
+     * 
+     * @author pzh
+     *
+     * @since JDK 1.8
+     */
+    private void renewCore() {
+        for (int i = 0; i < oldCore.length; i++) {
+            logger.info("以<" + Arrays.toString(oldCore[i].getVector()) + ">为中心的点：");
             int numc = 0;
             WordVecPoint tempCore = new WordVecPoint();
             tempCore.setVector(new float[oldCore[i].getVector().length]);
             for (int j = 0; j < allPoint.length; j++) {
 
                 if (allPoint[j].getFlag() == (i + 1)) {
-                    System.out.println(Arrays.toString(allPoint[j].getVector()));
+                    logger.info(Arrays.toString(allPoint[j].getVector()));
                     numc += 1;
                     tempCore.setWord(allPoint[j].getWord());
-                    for(int k=0;k<allPoint[j].getVector().length;k++) {
-                        tempCore.getVector()[k] +=allPoint[j].getVector()[k];
+                    for (int k = 0; k < allPoint[j].getVector().length; k++) {
+                        tempCore.getVector()[k] += allPoint[j].getVector()[k];
                     }
                 }
             }
             // 新的聚类中心
             newCore[i] = new WordVecPoint();
             newCore[i].setWord(tempCore.getWord());
-            newCore[i].setVector(vector); = newcore.y / numc;
-            newCore[i].flage = 0;
-            System.out.println("新的聚类中心：" + pacoren[i].x + "," + pacoren[i].y);
-
+            for (int j = 0; j < tempCore.getVector().length; j++) {
+                tempCore.getVector()[j] = tempCore.getVector()[j] / numc;
+            }
+            newCore[i].setVector(tempCore.getVector());
+            newCore[i].setFlag(0);
+            logger.info("新的聚类中心：" + Arrays.toString(newCore[i].getVector()));
         }
     }
 
     /**
-     * pointDistance: 点之间的距离. <br/>
+     * changeOldToNew:将旧的聚类中心替换为新的聚类中心. <br/>
      * 
      * @author pzh
-     * @param wordVecPoint1
-     * @param wordVecPoint2
-     * @return 距离
+     * @param oldCore2
+     *            旧的聚类中心
+     * @param newCore2
+     *            新的聚类中心
      *
      * @since JDK 1.8
      */
-    public double pointDistance(WordVecPoint wordVecPoint1, WordVecPoint wordVecPoint2) {
-        float[] f1 = wordVecPoint1.getVector();
-        float[] f2 = wordVecPoint2.getVector();
-        double sum = 0;
-        for (int i = 0; i < f2.length; i++) {
-            sum += Math.pow((f1[i] - f2[i]), 2);
-        }
-        return Math.sqrt(sum);
-
-    }
-
-    public void change_oldtonew(point[] old, point[] news) {
-        for (int i = 0; i < old.length; i++) {
-            old[i].x = news[i].x;
-            old[i].y = news[i].y;
-            old[i].flage = 0;// 表示为聚类中心的标志。
+    private void changeOldToNew(WordVecPoint[] oldCore2, WordVecPoint[] newCore2) {
+        for (int i = 0; i < oldCore2.length; i++) {
+            oldCore2[i].setWord(newCore2[i].getWord());
+            for (int j = 0; j < newCore2[i].getVector().length; j++) {
+                float[] fs = oldCore2[i].getVector();
+                fs[j] = newCore2[i].getVector()[j];
+                oldCore2[i].setVector(fs);
+            }
+            oldCore2[i].setFlag(0);// 表示为聚类中心的标志。
         }
     }
 
-    public void movecore() {
+    /**
+     * movecore:(这里用一句话描述这个方法的作用). <br/>
+     * 
+     * @author pzh
+     *
+     * @since JDK 1.8
+     */
+    public void kmeansStart() {
         // this.productpoint();//初始化，样本集，聚类中心，
-        this.searchbelong();
-        this.calaverage();//
+        this.searchBelong();
+        this.renewCore();//
         double movedistance = 0;
         int biao = -1;//标志，聚类中心点的移动是否符合最小距离
-        for (int i = 0; i < pacore.length; i++) {
-            movedistance = distpoint(pacore[i], pacoren[i]);
-            System.out.println("distcore:" + movedistance);//聚类中心的移动距离
+        for (int i = 0; i < allPoint.length; i++) {
+            movedistance = Distance.pointDistance(allPoint[i], allPoint[i]);
+            logger.debug("distcore:" + movedistance);//聚类中心的移动距离
             if (movedistance < 0.01) {
                 biao = 0;
-
             } else {
-
                 biao = 1;//需要继续迭代，
                 break;
-
             }
         }
         if (biao == 0) {
-            System.out.print("迭代完毕！！！！！");
+            logger.info("迭代完毕！");
         } else {
-            change_oldtonew(pacore, pacoren);
-            movecore();
+            changeOldToNew(oldCore, newCore);
+            kmeansStart();
         }
 
     }
 
     public static void main(String[] args) {
         // TODO Auto-generated method stub
+        Kmeans kmeans = new Kmeans();
 
-        Kcluster kmean = new Kcluster();
-        kmean.productpoint();
-        kmean.movecore();
+        WordVecPoint test1 = new WordVecPoint();
+        test1.setWord("test1");
+        float[] f1 = new float[3];
+        f1[0] = -2;
+        f1[1] = -2;
+        f1[2] = -2;
+        test1.setVector(f1);
+
+        WordVecPoint test2 = new WordVecPoint();
+        test2.setWord("test2");
+        float[] f2 = new float[3];
+        f2[0] = -1;
+        f2[1] = -1;
+        f2[2] = -1;
+        test2.setVector(f2);
+
+        WordVecPoint test3 = new WordVecPoint();
+        test1.setWord("test3");
+        float[] f3 = new float[3];
+        f3[0] = 1;
+        f3[1] = 1;
+        f3[2] = 1;
+        test3.setVector(f3);
+
+        WordVecPoint test4 = new WordVecPoint();
+        test4.setWord("test4");
+        float[] f4 = new float[3];
+        f4[0] = 2;
+        f4[1] = 2;
+        f4[2] = 2;
+        test4.setVector(f4);
+        WordVecPoint[] wvp = new WordVecPoint[4];
+        wvp[0] = test1;
+        wvp[1] = test2;
+        wvp[2] = test3;
+        wvp[3] = test4;
+
+        kmeans.setAllPoint(wvp);
+        kmeans.initOldCore(2);
+        kmeans.kmeansStart();
     }
 
     /**
@@ -203,7 +252,7 @@ public class Kmeans {
      * 
      * @return allPoint
      */
-    public static WordVecPoint[] getAllPoint() {
+    public WordVecPoint[] getAllPoint() {
         return allPoint;
     }
 
@@ -212,7 +261,7 @@ public class Kmeans {
      * 
      * @param allPoint
      */
-    public static void setAllPoint(WordVecPoint[] allPoint) {
+    public void setAllPoint(WordVecPoint[] allPoint) {
         Kmeans.allPoint = allPoint;
     }
 }
