@@ -271,4 +271,21 @@ public class Kmeans {
     public void setAllPoint(WordVecPoint[] allPoint) {
         Kmeans.allPoint = allPoint;
     }
+
+    /** 
+     * 获取 newCore
+     * @return newCore 
+     */
+    public WordVecPoint[] getNewCore() {
+        return newCore;
+    }
+
+    /** 
+     * 设置 newCore
+     * @param newCore  
+     */
+    public void setNewCore(WordVecPoint[] newCore) {
+        Kmeans.newCore = newCore;
+    }
+    
 }

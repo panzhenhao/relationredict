@@ -28,13 +28,12 @@ public class Main {
      *
      * @since JDK 1.8 
      */ 
-    public static void main(String[] args) throws Exception {
-        LoadModel loadModel = new LoadModel();
+    public static void main(String[] args) throws Exception {  
         //1.加载模型
-        String path = loadModel.getClass().getResource("/").getPath();
-        WordVectorModel cbowModel = loadModel.loadModel(path+"trunk/cbowVectors.bin");
-        WordVectorModel skipModel = loadModel.loadModel(path+"trunk/skipVectors.bin");
-        WordVectorModel gloveModel = loadModel.loadModel(path+"GloVe-1.2/vectors.bin");
+        String path = LoadModel.class.getClass().getResource("/").getPath();
+        WordVectorModel cbowModel = LoadModel.loadModel(path+"trunk/cbowVectors.bin");
+        WordVectorModel skipModel = LoadModel.loadModel(path+"trunk/skipVectors.bin");
+        WordVectorModel gloveModel = LoadModel.loadModel(path+"GloVe-1.2/vectors.bin");
         //2.加载训练集聚类模型
         //3.加载测试集
         //4.计算结果
