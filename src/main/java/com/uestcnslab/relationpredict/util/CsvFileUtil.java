@@ -16,11 +16,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.csvreader.CsvReader;
 import com.csvreader.CsvWriter;
-import com.uestcnslab.relationpredict.model.WordVectorModel;
-
-import javafx.scene.shape.Line;
 
 /**
  * @author pzh
@@ -46,15 +42,24 @@ public class CsvFileUtil {
      */
     private BufferedReader     br     = null;
 
+    /** 
+     * main:(这里用一句话描述这个方法的作用). <br/> 
+     * 
+     * @author pzh 
+     * @param args
+     * @throws Exception 
+     *
+     * @since JDK 1.8 
+     */ 
     public static void main(String[] args) throws Exception {
         String path = CsvFileUtil.class.getClass().getResource("/").getPath();
         String filename = path + "data/word_pairs_final.9classes.csv";
         CsvFileUtil csvFileUtil = new CsvFileUtil(filename);
         String line = csvFileUtil.readLine();
-        //        System.out.println(line);
-        //        while ((line = csvFileUtil.readLine()) != null) {
-        //            System.out.println(line);
-        //        }
+        System.out.println(line);
+        while ((line = csvFileUtil.readLine()) != null) {
+            System.out.println(line);
+        }
         String[] headers = { "编号", "姓名", "年龄" };
         List<String[]> list = new ArrayList<String[]>();
         String[] content = { "12365", "张山", "34" };

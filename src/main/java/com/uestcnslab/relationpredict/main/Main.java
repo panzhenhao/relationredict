@@ -32,7 +32,9 @@ public class Main {
         LoadModel loadModel = new LoadModel();
         //1.加载模型
         String path = loadModel.getClass().getResource("/").getPath();
-        WordVectorModel wordVectorModel = loadModel.loadModel(path+"trunk/cbowVectors.bin");
+        WordVectorModel cbowModel = loadModel.loadModel(path+"trunk/cbowVectors.bin");
+        WordVectorModel skipModel = loadModel.loadModel(path+"trunk/skipVectors.bin");
+        WordVectorModel gloveModel = loadModel.loadModel(path+"GloVe-1.2/vectors.bin");
         //2.加载训练集聚类模型
         //3.加载测试集
         //4.计算结果

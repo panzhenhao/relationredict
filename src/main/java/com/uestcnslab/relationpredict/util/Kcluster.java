@@ -12,10 +12,10 @@ package com.uestcnslab.relationpredict.util;
 /** @author pzh 
  *  @version $Id: Kcluster.java, v 0.1 2017年11月14日 下午9:05:15 pzh Exp $ */
 
-import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
+@SuppressWarnings("javadoc")
 class point {
     public float x = 0;
     public float y = 0;
@@ -38,6 +38,7 @@ class point {
     }
 }
 
+@SuppressWarnings("javadoc")
 public class Kcluster {
 
     point[] ypo;// 点集
@@ -45,6 +46,7 @@ public class Kcluster {
     point[] pacoren = null;// new聚类中心
 
     // 初试聚类中心，点集
+    @SuppressWarnings("resource")
     public void productpoint() {
         Scanner cina = new Scanner(System.in);
         System.out.print("请输入聚类中点的个数（随机产生）：");

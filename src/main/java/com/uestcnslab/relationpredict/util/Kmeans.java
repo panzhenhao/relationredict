@@ -201,8 +201,15 @@ public class Kmeans {
 
     }
 
+    /** 
+     * main:test. <br/> 
+     * 
+     * @author pzh 
+     * @param args 
+     *
+     * @since JDK 1.8 
+     */ 
     public static void main(String[] args) {
-        // TODO Auto-generated method stub
         Kmeans kmeans = new Kmeans();
 
         WordVecPoint test1 = new WordVecPoint();

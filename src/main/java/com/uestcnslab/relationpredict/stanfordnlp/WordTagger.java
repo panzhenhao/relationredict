@@ -1,6 +1,5 @@
 package com.uestcnslab.relationpredict.stanfordnlp;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -76,7 +75,6 @@ public class WordTagger {
         try {
             testList = wt.filterNounWord(testList);
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         System.out.println(testList);

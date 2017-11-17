@@ -34,9 +34,8 @@ public class WordAnalyseTest {
      */
     public static void main(String[] args) throws IOException {
         WordAnalyse wordAnalyse = new WordAnalyse();
-        LoadModel loadModel = new LoadModel();
-        String path = loadModel.getClass().getResource("/").getPath();
-        WordVectorModel wordVectorModel = loadModel.loadModel(path + "trunk/cbowVectors.bin");
+        String path = LoadModel.class.getClass().getResource("/").getPath();
+        WordVectorModel wordVectorModel = LoadModel.loadModel(path + "trunk/cbowVectors.bin");
         System.out.println(wordAnalyse.distance("dog", wordVectorModel.getWordMap()));
         System.out.println(wordAnalyse.analogy("dog","leg","leg", wordVectorModel));
     }

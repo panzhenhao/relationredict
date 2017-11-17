@@ -10,8 +10,10 @@
 package com.uestcnslab.relationpredict.util;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -26,11 +28,11 @@ import com.uestcnslab.relationpredict.model.WordVectorModel;
 
 public class LoadModel {
     /**
-      * @Fields logger : 日志模型
-      */
-    Logger                   logger   = Logger.getLogger("LoadModel");
+     * @Fields logger : 日志模型
+     */
+    static Logger                   logger   = Logger.getLogger("LoadModel");
     /**
-     * @Fields MAX_SIZE : TODO 每次读取单词长度数组大小
+     * @Fields MAX_SIZE     每次读取单词长度数组大小
      */
     private static final int MAX_SIZE = 50;
 
@@ -45,7 +47,7 @@ public class LoadModel {
      *
      * @since JDK 1.8
      */
-    public WordVectorModel loadModel(String path) throws IOException {
+    public static WordVectorModel loadModel(String path) throws IOException {
         logger.info("加载模型：" + path);
         WordVectorModel wordVectorModel = new WordVectorModel();
         HashMap<String, float[]> wordMap = new HashMap<String, float[]>();
@@ -135,7 +137,7 @@ public class LoadModel {
      *
      * @since JDK 1.8
      */
-    public static float readFloat(InputStream is) throws IOException {
+    private static float readFloat(InputStream is) throws IOException {
         byte[] bytes = new byte[4];
         is.read(bytes);
         return getFloat(bytes);
@@ -148,12 +150,53 @@ public class LoadModel {
      *            byte[]
      * @return float
      */
-    public static float getFloat(byte[] b) {
+    private static float getFloat(byte[] b) {
         int accum = 0;
         accum = accum | (b[0] & 0xff) << 0;
         accum = accum | (b[1] & 0xff) << 8;
         accum = accum | (b[2] & 0xff) << 16;
         accum = accum | (b[3] & 0xff) << 24;
         return Float.intBitsToFloat(accum);
+    }
+
+    /**
+     * loadGloveModel: 加载glove模型. <br/>
+     * 
+     * @author pzh
+     * @param path
+     *            文件路径
+     * @return 词向量模型
+     *
+     * @since JDK 1.8
+     */
+    public static WordVectorModel loadGloveModel(String path) {
+        logger.info("加载模型：" + path);
+        WordVectorModel wordVectorModel = new WordVectorModel();
+        try {
+            FileReader reader = new FileReader(path);
+            BufferedReader br = new BufferedReader(reader);
+            String str = br.readLine();
+            int count = Integer.parseInt(str.split(" ")[0]);
+            int size = Integer.parseInt(str.split(" ")[1]);
+            wordVectorModel.setCount(count);
+            wordVectorModel.setSize(size);
+            HashMap<String,float[]> wordMap = new HashMap<String, float[]>();
+            while ((str = br.readLine()) != null) {
+                
+                String[] keyAndvalue = str.split(" ");
+                String key = keyAndvalue[0];
+                float[] value = new float[size];
+                for (int i = 1; i < keyAndvalue.length; i++) {
+                    value[i-1] = Float.parseFloat(keyAndvalue[i]);
+                }
+                wordMap.put(key, value);
+            }
+            wordVectorModel.setWordMap(wordMap);
+            br.close();
+            reader.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return wordVectorModel;
     }
 }

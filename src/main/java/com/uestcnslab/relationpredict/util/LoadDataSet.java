@@ -38,6 +38,7 @@ public class LoadDataSet {
 
             // 读表头,有为true
             if (csvReader.readHeaders()) {
+                @SuppressWarnings("unused")
                 String[] headers = csvReader.getHeaders();
             }
 

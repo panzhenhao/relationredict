@@ -9,7 +9,7 @@
 package com.uestcnslab.relationpredict.test;
 
 import java.io.IOException;
-import java.nio.file.Path;
+import java.util.Arrays;
 
 import com.uestcnslab.relationpredict.model.WordVectorModel;
 import com.uestcnslab.relationpredict.util.LoadModel;
@@ -31,15 +31,20 @@ public class LoadModelTest {
      * @since JDK 1.8
      */
     public static void main(String[] args) {
-        LoadModel loadModel = new LoadModel();
         try {
-           String path = loadModel.getClass().getResource("/").getPath();
-           WordVectorModel wordVectorModel = loadModel.loadModel(path+"trunk/cbowVectors.bin");
+           String path = LoadModel.class.getClass().getResource("/").getPath();
+           WordVectorModel wordVectorModel = LoadModel.loadModel(path+"trunk/cbowVectors.bin");
            System.out.println(wordVectorModel.getCount());
            System.out.println(wordVectorModel.getSize());
-           WordVectorModel wordVectorModel2 = loadModel.loadModel(path+"trunk/skipVectors.bin");
+           System.out.println(Arrays.toString(wordVectorModel.getWordMap().get("the")));
+           WordVectorModel wordVectorModel2 = LoadModel.loadModel(path+"trunk/skipVectors.bin");
            System.out.println(wordVectorModel2.getCount());
            System.out.println(wordVectorModel2.getSize());
+           System.out.println(Arrays.toString(wordVectorModel2.getWordMap().get("the")));
+           WordVectorModel wordVectorModel3 = LoadModel.loadGloveModel(path+"GloVe-1.2/vectors.bin");
+           System.out.println(wordVectorModel3.getCount());
+           System.out.println(wordVectorModel3.getSize());
+           System.out.println(Arrays.toString(wordVectorModel3.getWordMap().get("the")));
         } catch (IOException e) {
             e.printStackTrace();
         }
