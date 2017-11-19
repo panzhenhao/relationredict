@@ -32,7 +32,7 @@ public class LoadModel {
      */
     static Logger                   logger   = Logger.getLogger("LoadModel");
     /**
-     * @Fields MAX_SIZE     每次读取单词长度数组大小
+     * @Fields MAX_SIZE 每次读取单词长度数组大小
      */
     private static final int MAX_SIZE = 50;
 

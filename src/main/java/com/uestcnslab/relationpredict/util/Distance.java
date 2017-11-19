@@ -9,6 +9,7 @@
 
 package com.uestcnslab.relationpredict.util;
 
+import com.uestcnslab.relationpredict.model.ClusterModel;
 import com.uestcnslab.relationpredict.model.WordVecPoint;
 
 /**
@@ -30,6 +31,25 @@ public class Distance {
     public static double pointDistance(WordVecPoint wordVecPoint1, WordVecPoint wordVecPoint2) {
         float[] f1 = wordVecPoint1.getVector();
         float[] f2 = wordVecPoint2.getVector();
+        double sum = 0;
+        for (int i = 0; i < f2.length; i++) {
+            sum += Math.pow((f1[i] - f2[i]), 2);
+        }
+        return Math.sqrt(sum);
+    }
+    /** 
+     * pointDistance:点之间的距离. <br/> 
+     * 
+     * @author pzh 
+     * @param wordVecPoint
+     * @param clusterModel
+     * @return 
+     *
+     * @since JDK 1.8 
+     */ 
+    public static double pointDistance(WordVecPoint wordVecPoint, ClusterModel clusterModel) {
+        float[] f1 = wordVecPoint.getVector();
+        float[] f2 = clusterModel.getVector();
         double sum = 0;
         for (int i = 0; i < f2.length; i++) {
             sum += Math.pow((f1[i] - f2[i]), 2);

@@ -11,12 +11,16 @@ package com.uestcnslab.relationpredict.util;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.csvreader.CsvReader;
 import com.csvreader.CsvWriter;
+import com.uestcnslab.relationpredict.model.ClusterModel;
+import com.uestcnslab.relationpredict.model.DataSetModel;
 
 /**
  * @author pzh
@@ -42,15 +46,15 @@ public class CsvFileUtil {
      */
     private BufferedReader     br     = null;
 
-    /** 
-     * main:(这里用一句话描述这个方法的作用). <br/> 
+    /**
+     * main:(这里用一句话描述这个方法的作用). <br/>
      * 
-     * @author pzh 
+     * @author pzh
      * @param args
-     * @throws Exception 
+     * @throws Exception
      *
-     * @since JDK 1.8 
-     */ 
+     * @since JDK 1.8
+     */
     public static void main(String[] args) throws Exception {
         String path = CsvFileUtil.class.getClass().getResource("/").getPath();
         String filename = path + "data/word_pairs_final.9classes.csv";
@@ -66,6 +70,72 @@ public class CsvFileUtil {
         list.add(content);
         list.add(content);
         csvWrite("/home/pzh/git/relationredict/src/main/resources/data/test.csv", headers, list);
+    }
+
+    /**
+     * loadDataSet: 加载训练集合. <br/>
+     * 
+     * @author pzh
+     * @param path
+     * @return
+     * @throws Exception
+     *
+     * @since JDK 1.8
+     */
+    public static List<DataSetModel> loadDataSet(String filename) throws Exception {
+        CsvFileUtil csvFileUtil = new CsvFileUtil(filename);
+        String line = csvFileUtil.readLine();
+        //System.out.println(line);
+        List<DataSetModel> trainSetModelList = new ArrayList<DataSetModel>();
+        while ((line = csvFileUtil.readLine()) != null) {
+            DataSetModel dataSetModel = new DataSetModel();
+            String[] str = line.split(",");
+            dataSetModel.setRelation(str[0]);
+            dataSetModel.setWordFirst(str[1]);
+            dataSetModel.setWordEnd(str[2]);
+            trainSetModelList.add(dataSetModel);
+        }
+        return trainSetModelList;
+    }
+
+    /**
+     * loadClusterModel:加载聚类模型. <br/>
+     * 
+     * @author pzh
+     * @param filename
+     * @return 聚类数据集
+     * @throws Exception
+     *
+     * @since JDK 1.8
+     */
+    public static List<ClusterModel> loadClusterModel(String filename) throws Exception {
+        List<ClusterModel> clusterModels = new ArrayList<ClusterModel>();
+        try {
+            // 创建CSV读对象
+            CsvReader csvReader = new CsvReader(filename);
+            // 读表头
+            csvReader.readHeaders();
+            while (csvReader.readRecord()) {
+                ClusterModel clusterModel = new ClusterModel();
+                clusterModel.setId(Integer.parseInt(csvReader.get("id")));
+                clusterModel.setRelation(csvReader.get("relation"));
+                clusterModel.setFlag(Integer.parseInt(csvReader.get("flag")));
+                String string = csvReader.get("vector");
+                string = string.substring(1, string.length() - 1);
+                String[] vecString = string.split(",");
+                float[] vector = new float[vecString.length];
+                for (int i = 0; i < vector.length; i++) {
+                    vector[i] = Float.parseFloat(vecString[i]);
+                }
+                clusterModel.setVector(vector);
+                clusterModels.add(clusterModel);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return clusterModels;
     }
 
     /**
