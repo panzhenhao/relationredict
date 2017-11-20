@@ -37,23 +37,29 @@ public class Distance {
         }
         return Math.sqrt(sum);
     }
-    /** 
-     * pointDistance:点之间的距离. <br/> 
+
+    /**
+     * pointDistance:点之间的距离. <br/>
      * 
-     * @author pzh 
+     * @author pzh
      * @param wordVecPoint
      * @param clusterModel
-     * @return 
+     * @return
      *
-     * @since JDK 1.8 
-     */ 
+     * @since JDK 1.8
+     */
     public static double pointDistance(WordVecPoint wordVecPoint, ClusterModel clusterModel) {
         float[] f1 = wordVecPoint.getVector();
         float[] f2 = clusterModel.getVector();
-        double sum = 0;
+        double numerator = 0;
+        double f1Length = 0;
+        double f2Length = 0;
         for (int i = 0; i < f2.length; i++) {
-            sum += Math.pow((f1[i] - f2[i]), 2);
+            numerator += f1[i] * f2[i];
+            f1Length += f1[i] * f1[i];
+            f2Length += f2[i] * f2[i];
         }
-        return Math.sqrt(sum);
+        double cos = numerator/(Math.sqrt(f1Length)*Math.sqrt(f2Length));
+        return cos;
     }
 }
