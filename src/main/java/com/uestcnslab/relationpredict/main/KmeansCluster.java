@@ -42,8 +42,8 @@ public class KmeansCluster {
         List<DataSetModel> DataSet = CsvFileUtil.loadDataSet(filename);
 
         //2.加载模型
-        WordVectorModel model = LoadModel.loadModel(path + "trunk/cbowVectors.bin");
-        //WordVectorModel model = LoadModel.loadModel(path+"trunk/skipVectors.bin");
+        //WordVectorModel model = LoadModel.loadModel(path + "trunk/cbowVectors.bin");
+        WordVectorModel model = LoadModel.loadModel(path+"trunk/skipVectors.bin");
         //WordVectorModel model = LoadModel.loadModel(path+"GloVe-1.2/vectors.bin");
 
         //3.计算关系向量模型
@@ -60,9 +60,9 @@ public class KmeansCluster {
             5);
 
         //５.回写文件
-        filename = "/home/pzh/git/relationredict/src/main/resources/data/train_core_cbow200_classify_cluster_5.csv";
+        filename = "/home/pzh/git/relationredict/src/main/resources/data/train_core_skip200_classify_cluster_5.csv";
         writeDataClusterToCsv(filename, classifyAndClusterResult.get(0));
-        filename = "/home/pzh/git/relationredict/src/main/resources/data/train_all_cbow200_classify_cluster_5.csv";
+        filename = "/home/pzh/git/relationredict/src/main/resources/data/train_all_skip200_classify_cluster_5.csv";
         writeDataClusterToCsv(filename, classifyAndClusterResult.get(1));
     }
 

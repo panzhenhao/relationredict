@@ -39,7 +39,7 @@ public class Main {
     private static String  WRONG   = "wrong";
 
     /**
-     * main:(这里用一句话描述这个方法的作用). <br/>
+     * main:　给定一个词组判断这个词组是什么关系. <br/>
      * 
      * @author pzh
      * @param args
@@ -70,19 +70,19 @@ public class Main {
         Map<Integer, List<SimilarModel>> mapResult = calculateSimilar(ClusterModels, relationVec);
 
         //6.统计结果
-        Map<String, Map<String, Integer>> result = countResult(mapResult);
-
-        for (String key : result.keySet()) {
-            Map<String, Integer> map = result.get(key);
+        Map<String, Map<String, Integer>> Result = countResult(mapResult);
+        
+        for (String key : Result.keySet()) {
+            Map<String, Integer> map = Result.get(key);
             int correctNum = map.get(CORRECT) == null ? 0 : map.get(CORRECT);
             int wrongNum = map.get(WRONG) == null ? 0 : map.get(WRONG);
             Integer total = correctNum + wrongNum;
-            System.out.println(key + "召回率： " + (float) correctNum / total);
+            System.out.println(key + "判断正确率： " + (float) correctNum / total);
         }
     }
 
     /**
-     * countResult:统计结果. <br/>
+     * countTpFpResult:统计结果. <br/>
      * 
      * @author pzh
      * @param mapResult
