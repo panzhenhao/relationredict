@@ -7,7 +7,7 @@
  * 
 */
 
-package com.uestcnslab.relationpredict.main;
+package com.uestcnslab.relationpredict.main2;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +30,7 @@ import com.uestcnslab.relationpredict.util.WordVecModelTransferUtil;
  * @version $Id: Main.java, v 0.1 2017年11月14日 下午5:58:09 pzh Exp $
  */
 
-public class Main3 {
+public class Main {
     /**
      * @Fields SIZE 相似度保留前几个
      */
@@ -50,7 +50,7 @@ public class Main3 {
     private static String  FN   = "fn";
 
     /**
-     * main:(这里用一句话描述这个方法的作用). <br/>
+     * main:　给定一个词组判断这个词组是什么关系. <br/>
      * 
      * @author pzh
      * @param args
@@ -62,12 +62,22 @@ public class Main3 {
         //1.加载模型
         String path = LoadModel.class.getClass().getResource("/").getPath();
         WordVectorModel cbowModel = LoadModel.loadModel(path + "trunk/cbowVectors.bin");
-       // WordVectorModel skipModel = LoadModel.loadModel(path + "trunk/skipVectors.bin");
+        // WordVectorModel skipModel = LoadModel.loadModel(path + "trunk/skipVectors.bin");
         //WordVectorModel gloveModel = LoadModel.loadModel(path+"GloVe-1.2/vectors.bin");
 
         //2.加载训练集聚类模型
-        String filename = path + "data/train_core_cbow200_classify_cluster_5.csv";
-        List<ClusterModel> ClusterModels = CsvFileUtil.loadClusterModel(filename);
+        String filename = path + "data/train_all_cbow200_cluster_classify_50.csv";
+        List<ClusterModel> clusterModels = CsvFileUtil.loadClusterModel(filename);
+        
+        //3 加载聚类中心
+        filename = path + "data/train_core_cbow200_cluster_classify_50.csv";
+        List<ClusterModel> coreClusterModels = CsvFileUtil.loadClusterModel(filename);
+        
+        //4统计聚类中心的关系
+        Map<Integer, String> coreRelation = countClusterCore(clusterModels,coreClusterModels.size());
+        
+        //更新聚类中心关系
+        updateCoreClusterModels(coreClusterModels,coreRelation);
         
         //3.加载测试集
         filename = path + "data/testset.csv";
@@ -78,8 +88,8 @@ public class Main3 {
             cbowModel);
 
         //５.计算结果
-        Map<Integer, List<SimilarModel>> mapResult = calculateSimilar(ClusterModels, relationVec);
-        
+        Map<Integer, List<SimilarModel>> mapResult = calculateSimilar(coreClusterModels, relationVec);
+
         //6.统计结果
         Map<String, Map<String, Integer>> Result = countTpFpResult(mapResult);
 
@@ -94,9 +104,57 @@ public class Main3 {
             float f1_Measure = (2 * acc * recall) / (acc + recall);
             System.out.println(key + "," + acc +","+ recall+","+ f1_Measure);
         }
-        //
     }
 
+    /**
+     * addTestRealtionFp: 累计测试关系的FP值. <br/>
+     * 
+     * @author pzh
+     * @param result
+     *            结果集
+     * @param testRelation
+     *            测试关系
+     *
+     * @since JDK 1.8
+     */
+    private static void addTestRealtionFp(Map<String, Map<String, Integer>> result,
+                                          String testRelation) {
+
+        if (result.get(testRelation) != null) {
+            Map<String, Integer> map = result.get(testRelation);
+            if (map.get(FP) == null) {
+                map.put(FP, 1);
+            } else {
+                map.put(FP, map.get(FP) + 1);
+            }
+            result.put(testRelation, map);
+        } else {
+            Map<String, Integer> map = new HashMap<String, Integer>();
+            map.put(FP, 1);
+            result.put(testRelation, map);
+        }
+    }
+
+    private static String getTestRelation(List<SimilarModel> list) {
+        Collections.sort(list);
+        Map<String, Double> map = new HashMap<String, Double>();
+        String testRelation =list.get(0).getTestRelation();
+        double maxScore =Double.MIN_VALUE;
+        for (int i=0;i<list.size();i++) {
+            SimilarModel similarModel = list.get(i);
+            String key = similarModel.getTestRelation();
+            double score = similarModel.getScore();
+            if (map.get(key)!=null) {
+                score +=map.get(key);
+            }
+            if (score>maxScore) {
+                testRelation = key;
+                maxScore = score;
+            }
+            map.put(key, score);
+        }
+        return testRelation;
+    }
     /**
      * countTpFpResult:统计结果. <br/>
      * 
@@ -148,54 +206,82 @@ public class Main3 {
         }
         return result;
     }
-
-    private static String getTestRelation(List<SimilarModel> list) {
-        Collections.sort(list);
-        Map<String, Double> map = new HashMap<String, Double>();
-        String testRelation =list.get(0).getTestRelation();
-        double maxScore =Double.MIN_VALUE;
-        for (int i=0;i<list.size();i++) {
-            SimilarModel similarModel = list.get(i);
-            String key = similarModel.getTestRelation();
-            double score = similarModel.getScore();
-            if (map.get(key)!=null) {
-                score +=map.get(key);
-            }
-            if (score>maxScore) {
-                testRelation = key;
-                maxScore = score;
-            }
-            map.put(key, score);
+    /** 
+     * updateCoreClusterModels:根据统计结果，更新聚类中心关系. <br/> 
+     * 
+     * @author pzh 
+     * @param coreClusterModels 聚类中心模型
+     * @param coreRelation  聚类中心关系
+     *
+     * @since JDK 1.8 
+     */ 
+    private static void updateCoreClusterModels(List<ClusterModel> coreClusterModels,
+                                                Map<Integer, String> coreRelation) {
+        for (ClusterModel clusterModel: coreClusterModels) {
+            Integer key = clusterModel.getId();
+            clusterModel.setRelation(coreRelation.get(key));
         }
-        return testRelation;
     }
 
-    /**
-     * addTestRealtionFp: 累计测试关系的FP值. <br/>
+    /** 
+     * countClusterCore:先聚类在分类情况下，统计聚类中心属于哪种关系. <br/> 
      * 
-     * @author pzh
-     * @param result
-     *            结果集
-     * @param testRelation
-     *            测试关系
+     * @author pzh 
+     * @param clusterModels
+     * @param n
+     * @return 聚类中心－关系 map
      *
-     * @since JDK 1.8
-     */
-    private static void addTestRealtionFp(Map<String, Map<String, Integer>> result,
-                                          String testRelation) {
-
-        if (result.get(testRelation) != null) {
-            Map<String, Integer> map = result.get(testRelation);
-            if (map.get(FP) == null) {
-                map.put(FP, 1);
-            } else {
-                map.put(FP, map.get(FP) + 1);
+     * @since JDK 1.8 
+     */ 
+    private static Map<Integer, String> countClusterCore(List<ClusterModel> clusterModels, int n) {
+        Map<Integer, String> result = new HashMap<Integer, String>();
+        //map key为聚类核　value 为map　其中key为关系value为出现次数
+        Map<Integer,Map<String, Integer>> coreRelations = new HashMap<Integer, Map<String,Integer>>();
+        for (ClusterModel clusterModel: clusterModels) {
+            //聚类中心编号为flag-1
+            int flag = clusterModel.getFlag();
+            int core = flag-1;
+            String relation = clusterModel.getRelation();
+            countCoreRelation(core,relation,coreRelations);
+        }
+        for (Integer key : coreRelations.keySet()) {
+            Map<String, Integer> map = coreRelations.get(key);
+            String relation = null;
+            Integer count = Integer.MIN_VALUE;
+            for (String keyTemp : map.keySet()) {
+                int num = map.get(keyTemp);
+                if (num>count) {
+                    count =num;
+                    relation = keyTemp;
+                }
             }
-            result.put(testRelation, map);
-        } else {
+            result.put(key, relation);
+        }
+        return result;
+    }
+
+    /** 
+     * countCoreRelation:(这里用一句话描述这个方法的作用). <br/> 
+     * 
+     * @author pzh 
+     * @param core 所属聚类中心
+     * @param relation 关系
+     * @param coreRelations 
+     *
+     * @since JDK 1.8 
+     */ 
+    private static void countCoreRelation(int core, String relation, Map<Integer, Map<String, Integer>> coreRelations) {
+        if (coreRelations.containsKey(core)) {
+            Map<String, Integer> map = coreRelations.get(core);
+            if (map.containsKey(relation)) {
+                map.put(relation, map.get(relation)+1);
+            }else {
+                map.put(relation, 1);
+            }
+        }else {
             Map<String, Integer> map = new HashMap<String, Integer>();
-            map.put(FP, 1);
-            result.put(testRelation, map);
+            map.put(relation, 1);
+            coreRelations.put(core, map);
         }
     }
 
@@ -232,7 +318,7 @@ public class Main3 {
      * insertMapResult:(这里用一句话描述这个方法的作用). <br/>
      * 
      * @author pzh
-     * @param mapResult
+     * @param mapResul
      *            结果存储
      * @param key
      *            结果key
