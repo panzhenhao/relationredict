@@ -43,7 +43,7 @@ public class KmeansCluster {
 
         //2.加载模型
         //WordVectorModel model = LoadModel.loadModel(path + "trunk/cbowVectors.bin");
-        WordVectorModel model = LoadModel.loadModel(path+"trunk/skipVectors.bin");
+        WordVectorModel model = LoadModel.loadModel(path+"trunk/cbowVectors.bin");
         //WordVectorModel model = LoadModel.loadModel(path+"GloVe-1.2/vectors.bin");
 
         //3.计算关系向量模型
@@ -60,9 +60,9 @@ public class KmeansCluster {
             5);
 
         //５.回写文件
-        filename = "/home/pzh/git/relationredict/src/main/resources/data/train_core_skip200_classify_cluster_5.csv";
+        filename = "/home/pzh/git/relationredict/src/main/resources/data/train_core_cbow200_classify_cluster_5.csv";
         writeDataClusterToCsv(filename, classifyAndClusterResult.get(0));
-        filename = "/home/pzh/git/relationredict/src/main/resources/data/train_all_skip200_classify_cluster_5.csv";
+        filename = "/home/pzh/git/relationredict/src/main/resources/data/train_all_cbow200_classify_cluster_5.csv";
         writeDataClusterToCsv(filename, classifyAndClusterResult.get(1));
     }
 
@@ -175,7 +175,60 @@ public class KmeansCluster {
         return result;
     }
 
-   
+    /**
+     * useKmeansClassifyAndClusterCosDistance:使用k-means聚类算法.. <br/>
+     * 
+     * @author pzh
+     * @param relationVecMap
+     *            聚类数据集
+     * @param n
+     *            聚类中心个数
+     * @return 聚类中心＋数据集标记所属的聚类中心 list 0 聚类中心，１标记的数据集
+     *
+     * @since JDK 1.8
+     */
+    private static List<WordVecPoint[]> useKmeansClassifyAndClusterCosDistance(Map<String, List<WordVecPoint>> relationVecMap,
+                                                                    int n) {
+        Kmeans kmeans = new Kmeans();
+        List<WordVecPoint[]> coreList = new ArrayList<WordVecPoint[]>();
+        List<WordVecPoint[]> allList = new ArrayList<WordVecPoint[]>();
+        List<WordVecPoint[]> result = new ArrayList<WordVecPoint[]>();
+        //总向量数
+        int count = 0;
+        for (String key : relationVecMap.keySet()) {
+            List<WordVecPoint> relationVec = relationVecMap.get(key);
+            count += relationVec.size();
+            WordVecPoint[] wvp = new WordVecPoint[relationVec.size()];
+            for (int i = 0; i < wvp.length; i++) {
+                wvp[i] = relationVec.get(i);
+            }
+            kmeans.setAllPoint(wvp);
+            kmeans.initOldCore(n);
+            kmeans.kmeansStartUseCosDistance();
+            WordVecPoint[] core = kmeans.getNewCore();
+            coreList.add(core);
+            allList.add(wvp);
+        }
+        WordVecPoint[] coreResult = new WordVecPoint[coreList.size() * n];
+        int index = 0;
+        for (WordVecPoint[] wordVecPoint : coreList) {
+            for (int j = 0; j < wordVecPoint.length; j++) {
+                coreResult[index + j] = wordVecPoint[j];
+            }
+            index = index + wordVecPoint.length;
+        }
+        WordVecPoint[] allResult = new WordVecPoint[count];
+        index = 0;
+        for (WordVecPoint[] wordVecPoint : allList) {
+            for (int j = 0; j < wordVecPoint.length; j++) {
+                allResult[index + j] = wordVecPoint[j];
+            }
+            index = index + wordVecPoint.length;
+        }
+        result.add(coreResult);
+        result.add(allResult);
+        return result;
+    }
 
     /**
      * getRelationVecMap: 关系向量集合key为关系，value为同关系的向量集合. <br/>

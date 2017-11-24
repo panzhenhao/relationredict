@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 
 import com.uestcnslab.relationpredict.model.DataSetModel;
 import com.uestcnslab.relationpredict.model.WordVecPoint;
+import com.uestcnslab.relationpredict.model.WordVecRelationModel;
 import com.uestcnslab.relationpredict.model.WordVectorModel;
 
 /** @author pzh 
@@ -55,13 +56,72 @@ public class WordVecModelTransferUtil {
                 continue;
             }
             float[] wordVecRelation = new float[wv2.length];
+            double sum = 0;
+            double vecLength = 1;
             for (int i = 0; i < wordVecRelation.length; i++) {
                 wordVecRelation[i] = wv1[i] - wv2[i];
+                sum +=wordVecRelation[i]*wordVecRelation[i];
             }
+            vecLength = Math.sqrt(sum);
+            for (int i = 0; i < wordVecRelation.length; i++) {
+                wordVecRelation[i] = (float)(wordVecRelation[i]/vecLength);
+            }
+            
             WordVecPoint WordVecPoint = new WordVecPoint();
             WordVecPoint.setWord(relation);
             WordVecPoint.setVector(wordVecRelation);
             relationVec.add(WordVecPoint);
+        }
+        return relationVec;
+    }
+    
+    /**
+     * getRelationVec:获取关系向量集合. <br/>
+     * 
+     * @author pzh
+     * @param DataSet
+     *            训练集
+     * @param model
+     *            词向量集
+     * @return 关系向量集合
+     *
+     * @since JDK 1.8
+     */
+    public static List<WordVecRelationModel> getDataSetRelationVec(List<DataSetModel> DataSet,
+                                                     WordVectorModel model) {
+        List<WordVecRelationModel> relationVec = new ArrayList<WordVecRelationModel>();
+        for (DataSetModel dataSetModel : DataSet) {
+            String relation = dataSetModel.getRelation();
+            String word1 = dataSetModel.getWordFirst();
+            String word2 = dataSetModel.getWordEnd();
+            float[] wv1 = model.getWordMap().get(word1);
+            if (wv1 == null) {
+                logger.info("不存在词向量:" + word1);
+                continue;
+            }
+            float[] wv2 = model.getWordMap().get(word2);
+            if (wv2 == null) {
+                logger.info("不存在词向量:" + word2);
+                continue;
+            }
+            float[] wordVecRelation = new float[wv2.length];
+            double sum = 0;
+            double vecLength = 1;
+            for (int i = 0; i < wordVecRelation.length; i++) {
+                wordVecRelation[i] = wv1[i] - wv2[i];
+                sum +=wordVecRelation[i]*wordVecRelation[i];
+            }
+            vecLength = Math.sqrt(sum);
+            for (int i = 0; i < wordVecRelation.length; i++) {
+                wordVecRelation[i] = (float)(wordVecRelation[i]/vecLength);
+            }
+            
+            WordVecRelationModel wordVecRelationModel = new WordVecRelationModel();
+            wordVecRelationModel.setWordFirst(word1);
+            wordVecRelationModel.setWordEnd(word2);
+            wordVecRelationModel.setRelation(relation);
+            wordVecRelationModel.setVector(wordVecRelation);
+            relationVec.add(wordVecRelationModel);
         }
         return relationVec;
     }

@@ -39,6 +39,15 @@ public class Kmeans {
      * new聚类中心
      */
     private static WordVecPoint[] newCore = null;
+    
+    /**
+      * @Fields iter :标志，聚类中心点的移动是否符合最小距离或迭代次数超过设置值
+      */
+    private int iter = 0;
+    /**
+      * @Fields iterMax : 默认次数
+      */
+    private int iterMax = 1000;
 
     /**
      * initOldCore:初始化聚类中心. <br/>
@@ -109,7 +118,28 @@ public class Kmeans {
             allPoint[i].setFlag(lable + 1);
         }
     }
-
+    /**
+     * searchBelongCos:找出每个点属于哪个聚类中心. <br/>
+     * 
+     * @author pzh
+     *
+     * @since JDK 1.8
+     */
+    private void searchBelongCos() {
+        for (int i = 0; i < allPoint.length; i++) {
+            double dist = -1;
+            int lable = -1;
+            for (int j = 0; j < oldCore.length; j++) {
+                double distance = Distance.pointDistanceCos(allPoint[i], oldCore[j]);
+                if (distance > dist) {
+                    dist = distance;
+                    lable = j;
+                    // po[i].flage = j + 1;// 1,2,3......
+                }
+            }
+            allPoint[i].setFlag(lable + 1);
+        }
+    }
     /**
      * renewCore: 更新聚类中心. <br/>
      * 
@@ -160,11 +190,11 @@ public class Kmeans {
     private void changeOldToNew(WordVecPoint[] oldCore2, WordVecPoint[] newCore2) {
         for (int i = 0; i < oldCore2.length; i++) {
             oldCore2[i].setWord(newCore2[i].getWord());
-            for (int j = 0; j < newCore2[i].getVector().length; j++) {
-                float[] fs = oldCore2[i].getVector();
-                fs[j] = newCore2[i].getVector()[j];
-                oldCore2[i].setVector(fs);
+            float[] fs = new float[oldCore2[i].getVector().length];
+            for (int j = 0; j < newCore2[i].getVector().length; j++) {           
+                fs[j] = newCore2[i].getVector()[j];   
             }
+            oldCore2[i].setVector(fs);
             oldCore2[i].setFlag(0);// 表示为聚类中心的标志。
         }
     }
@@ -181,11 +211,42 @@ public class Kmeans {
         this.searchBelong();
         this.renewCore();//
         double movedistance = 0;
+        
+        for (int i = 0; i < oldCore.length; i++) {
+            movedistance = Distance.pointDistance(oldCore[i], newCore[i]);
+            logger.debug("distcore:" + movedistance);//聚类中心的移动距离
+            if (movedistance < 0.1) {
+                iter = iterMax;
+            } else {
+                iter++;//需要继续迭代，
+                break;
+            }
+        }
+        if (iter >= iterMax) {
+            logger.info("迭代完毕！");
+        } else {
+            changeOldToNew(oldCore, newCore);
+            kmeansStart();
+        }
+
+    }
+    /**
+     * kmeansStartUseCosDistance:(这里用一句话描述这个方法的作用). <br/>
+     * 
+     * @author pzh
+     *
+     * @since JDK 1.8
+     */
+    public void kmeansStartUseCosDistance() {
+        // this.productpoint();//初始化，样本集，聚类中心，
+        this.searchBelongCos();
+        this.renewCore();//
+        double movedistance = 0;
         int biao = -1;//标志，聚类中心点的移动是否符合最小距离
         for (int i = 0; i < allPoint.length; i++) {
-            movedistance = Distance.pointDistance(allPoint[i], allPoint[i]);
+            movedistance = Distance.pointDistanceCos(allPoint[i], allPoint[i]);
             logger.debug("distcore:" + movedistance);//聚类中心的移动距离
-            if (movedistance < 0.01) {
+            if (movedistance < 0.001) {
                 biao = 0;
             } else {
                 biao = 1;//需要继续迭代，
@@ -196,11 +257,15 @@ public class Kmeans {
             logger.info("迭代完毕！");
         } else {
             changeOldToNew(oldCore, newCore);
-            kmeansStart();
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                logger.error("线程sleep异常：", e);
+            }
+            kmeansStartUseCosDistance();
         }
 
     }
-
     /** 
      * main:test. <br/> 
      * 
@@ -229,11 +294,11 @@ public class Kmeans {
         test2.setVector(f2);
 
         WordVecPoint test3 = new WordVecPoint();
-        test1.setWord("test3");
+        test3.setWord("test3");
         float[] f3 = new float[3];
-        f3[0] = 1;
-        f3[1] = 1;
-        f3[2] = 1;
+        f3[0] = 3;
+        f3[1] = 3;
+        f3[2] = 3;
         test3.setVector(f3);
 
         WordVecPoint test4 = new WordVecPoint();
@@ -243,11 +308,21 @@ public class Kmeans {
         f4[1] = 2;
         f4[2] = 2;
         test4.setVector(f4);
-        WordVecPoint[] wvp = new WordVecPoint[4];
+        
+        WordVecPoint test5 = new WordVecPoint();
+        test5.setWord("test5");
+        float[] f5 = new float[3];
+        f5[0] = 5;
+        f5[1] = 5;
+        f5[2] = 5;
+        test5.setVector(f5);
+        
+        WordVecPoint[] wvp = new WordVecPoint[5];
         wvp[0] = test1;
         wvp[1] = test2;
         wvp[2] = test3;
         wvp[3] = test4;
+        wvp[4] = test5;
 
         kmeans.setAllPoint(wvp);
         kmeans.initOldCore(2);
@@ -287,5 +362,19 @@ public class Kmeans {
     public void setNewCore(WordVecPoint[] newCore) {
         Kmeans.newCore = newCore;
     }
-    
+    /** 
+     * 获取 iterMax
+     * @return iterMax 
+     */
+    public int getIterMax() {
+        return iterMax;
+    }
+
+    /** 
+     * 设置 iterMax
+     * @param iterMax  
+     */
+    public void setIterMax(int iterMax) {
+        this.iterMax = iterMax;
+    }
 }

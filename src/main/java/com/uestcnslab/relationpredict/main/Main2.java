@@ -60,12 +60,12 @@ public class Main2 {
     public static void main(String[] args) throws Exception {
         //1.加载模型
         String path = LoadModel.class.getClass().getResource("/").getPath();
-        WordVectorModel cbowModel = LoadModel.loadModel(path + "trunk/skipVectors.bin");
+        WordVectorModel cbowModel = LoadModel.loadModel(path + "trunk/cbowVectors.bin");
         // WordVectorModel skipModel = LoadModel.loadModel(path + "trunk/skipVectors.bin");
         //WordVectorModel gloveModel = LoadModel.loadModel(path+"GloVe-1.2/vectors.bin");
 
         //2.加载训练集聚类模型
-        String filename = path + "data/train_core_skip200_classify_cluster_5.csv";
+        String filename = path + "data/train_core_cbow200_classify_cluster_5.csv";
         List<ClusterModel> ClusterModels = CsvFileUtil.loadClusterModel(filename);
 
         //3.加载测试集

@@ -21,6 +21,7 @@ import com.uestcnslab.relationpredict.model.SimilarModel;
 import com.uestcnslab.relationpredict.model.WordVecPoint;
 import com.uestcnslab.relationpredict.model.WordVectorModel;
 import com.uestcnslab.relationpredict.util.CsvFileUtil;
+import com.uestcnslab.relationpredict.util.DataUtil;
 import com.uestcnslab.relationpredict.util.Distance;
 import com.uestcnslab.relationpredict.util.LoadModel;
 import com.uestcnslab.relationpredict.util.WordVecModelTransferUtil;
@@ -66,11 +67,11 @@ public class Main {
         //WordVectorModel gloveModel = LoadModel.loadModel(path+"GloVe-1.2/vectors.bin");
 
         //2.加载训练集聚类模型
-        String filename = path + "data/train_all_cbow200_cluster_classify_50.csv";
+        String filename = path + "data/train_all_cbow200_cluster_classify_25.csv";
         List<ClusterModel> clusterModels = CsvFileUtil.loadClusterModel(filename);
         
         //3 加载聚类中心
-        filename = path + "data/train_core_cbow200_cluster_classify_50.csv";
+        filename = path + "data/train_core_cbow200_cluster_classify_25.csv";
         List<ClusterModel> coreClusterModels = CsvFileUtil.loadClusterModel(filename);
         
         //4统计聚类中心的关系
@@ -79,6 +80,9 @@ public class Main {
         //更新聚类中心关系
         updateCoreClusterModels(coreClusterModels,coreRelation);
         
+        for (ClusterModel clusterModel: coreClusterModels) {
+            System.out.println(clusterModel.getRelation());
+        }
         //3.加载测试集
         filename = path + "data/testset.csv";
         List<DataSetModel> testSet = CsvFileUtil.loadDataSet(filename);
@@ -271,16 +275,18 @@ public class Main {
      * @since JDK 1.8 
      */ 
     private static void countCoreRelation(int core, String relation, Map<Integer, Map<String, Integer>> coreRelations) {
+        Map<String,Integer> trainSetRelations = DataUtil.trainSetRelations;
+        float total = DataUtil.TOTAL_DATA;
         if (coreRelations.containsKey(core)) {
             Map<String, Integer> map = coreRelations.get(core);
             if (map.containsKey(relation)) {
-                map.put(relation, map.get(relation)+1);
+                map.put(relation, map.get(relation)+(int)(total/trainSetRelations.get(relation)));
             }else {
-                map.put(relation, 1);
+                map.put(relation, (int)(total/trainSetRelations.get(relation)));
             }
         }else {
             Map<String, Integer> map = new HashMap<String, Integer>();
-            map.put(relation, 1);
+            map.put(relation, (int)(total/trainSetRelations.get(relation)));
             coreRelations.put(core, map);
         }
     }

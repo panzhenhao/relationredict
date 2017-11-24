@@ -19,6 +19,7 @@ import java.util.List;
 
 import com.csvreader.CsvReader;
 import com.csvreader.CsvWriter;
+import com.uestcnslab.relationpredict.model.AttributeMode;
 import com.uestcnslab.relationpredict.model.ClusterModel;
 import com.uestcnslab.relationpredict.model.DataSetModel;
 
@@ -97,7 +98,77 @@ public class CsvFileUtil {
         }
         return trainSetModelList;
     }
+    /** 
+     * loadClusterRelationModel:加载csv模型文件. <br/> 
+     * 
+     * @author pzh 
+     * @param filename 文件路径
+     * @return AttributeMode　list
+     *
+     * @since JDK 1.8 
+     */ 
+    public static List<AttributeMode> loadClusterRelationModel(String filename) {
+        List<AttributeMode> attributeModes = new ArrayList<AttributeMode>();
+        try {
+            // 创建CSV读对象
+            CsvReader csvReader = new CsvReader(filename);
+            // 读表头
+            csvReader.readHeaders();
+            while (csvReader.readRecord()) {
+                AttributeMode attributeMode = new AttributeMode();
+                attributeMode.setId(Integer.parseInt(csvReader.get("id")));
+                attributeMode.setRelation(csvReader.get("relation"));
+                attributeMode.setWord1(csvReader.get("word1"));
+                attributeMode.setWord2(csvReader.get("word2"));
+                attributeMode.setFlag(Integer.parseInt(csvReader.get("flag")));
+                String relationVectorString = csvReader.get("relationVector");
+                float[] relationVector = changeStringToVector(relationVectorString);
+                attributeMode.setRelationVector(relationVector);
+                String word1VectorString = csvReader.get("word1Vector");
+                float[] word1Vector = changeStringToVector(word1VectorString);
+                attributeMode.setWord1Vector(word1Vector);
+                String word2VectorString = csvReader.get("word2Vector");
+                float[] word2Vector = changeStringToVector(word2VectorString);
+                attributeMode.setWord2Vector(word2Vector);
+                String coreVectorString = csvReader.get("coreVector");
+                float[] coreVector = changeStringToVector(coreVectorString);
+                attributeMode.setCoreVector(coreVector);
+                String  distance = csvReader.get("distance");
+                if (distance==null||"".equals(distance)) {
+                    distance="0";
+                }
+                attributeMode.setDistance(Double.parseDouble(distance));
+                attributeModes.add(attributeMode);
+            }
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return attributeModes;
+    }
+
+    /** 
+     * changeStringToVector:将字符串［１，１］转为向量　float[]形式. <br/> 
+     * 
+     * @author pzh 
+     * @param string
+     * @return 
+     *
+     * @since JDK 1.8 
+     */ 
+    private static float[] changeStringToVector(String string) {
+        if (string==null||"".equals(string)) {
+            return null;
+        }
+        string = string.substring(1, string.length() - 1);
+        String[] vecString = string.split(",");
+        float[] vector = new float[vecString.length];
+        for (int i = 0; i < vector.length; i++) {
+            vector[i] = Float.parseFloat(vecString[i]);
+        }
+        return vector;
+    }
     /**
      * loadClusterModel:加载聚类模型. <br/>
      * 
