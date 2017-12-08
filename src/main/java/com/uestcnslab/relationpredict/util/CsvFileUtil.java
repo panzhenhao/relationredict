@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.csvreader.CsvReader;
@@ -72,7 +73,34 @@ public class CsvFileUtil {
         list.add(content);
         csvWrite("/home/pzh/git/relationredict/src/main/resources/data/test.csv", headers, list);
     }
-
+    /** 
+     * writeDataClusterToCsv:(这里用一句话描述这个方法的作用). <br/> 
+     * 
+     * @author pzh 
+     * @param filename
+     * @param attributeModes 
+     *
+     * @since JDK 1.8 
+     */ 
+    public static void writeDataClusterToCsv(String filename, List<AttributeMode> attributeModes) {
+        String[] headers = { "id", "relation", "word1", "word2", "flag", "relationVector","word1Vector","word2Vector","coreVector","distance" };
+        List<String[]> list = new ArrayList<String[]>();
+        for (AttributeMode attributeMode : attributeModes) {
+            String id = String.valueOf(attributeMode.getId());
+            String relation = attributeMode.getRelation();
+            String word1 = attributeMode.getWord1();
+            String word2 = attributeMode.getWord2();
+            String flag = String.valueOf(attributeMode.getFlag());
+            String relationVector = Arrays.toString(attributeMode.getRelationVector());
+            String word1Vector = Arrays.toString(attributeMode.getWord1Vector());
+            String word2Vector = Arrays.toString(attributeMode.getWord2Vector());
+            String coreVector = Arrays.toString(attributeMode.getCoreVector());
+            String distance = String.valueOf(attributeMode.getDistance());
+            String[] content = { id, relation, word1, word2, flag, relationVector, word1Vector,word2Vector,coreVector,distance};
+            list.add(content);
+        }
+        CsvFileUtil.csvWrite(filename, headers, list);
+    }
     /**
      * loadDataSet: 加载训练集合. <br/>
      * 
