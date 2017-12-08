@@ -146,4 +146,27 @@ public class Distance {
         }
         return Math.sqrt(sum);
     }
+
+    /** 
+     * pointDistanceCos:(这里用一句话描述这个方法的作用). <br/> 
+     * 
+     * @author pzh 
+     * @param f1
+     * @param f2
+     * @return 
+     *
+     * @since JDK 1.8 
+     */ 
+    public static double pointDistanceCos(float[] f1, float[] f2) {
+        double numerator = 0;
+        double f1Length = 0;
+        double f2Length = 0;
+        for (int i = 0; i < f2.length; i++) {
+            numerator += f1[i] * f2[i];
+            f1Length += f1[i] * f1[i];
+            f2Length += f2[i] * f2[i];
+        }
+        double cos = numerator/(Math.sqrt(f1Length)*Math.sqrt(f2Length));
+        return cos;
+    }
 }

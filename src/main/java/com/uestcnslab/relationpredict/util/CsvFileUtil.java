@@ -149,18 +149,23 @@ public class CsvFileUtil {
                 attributeMode.setWord1(csvReader.get("word1"));
                 attributeMode.setWord2(csvReader.get("word2"));
                 attributeMode.setFlag(Integer.parseInt(csvReader.get("flag")));
-                String relationVectorString = csvReader.get("relationVector");
-                float[] relationVector = changeStringToVector(relationVectorString);
-                attributeMode.setRelationVector(relationVector);
-                String word1VectorString = csvReader.get("word1Vector");
-                float[] word1Vector = changeStringToVector(word1VectorString);
-                attributeMode.setWord1Vector(word1Vector);
-                String word2VectorString = csvReader.get("word2Vector");
-                float[] word2Vector = changeStringToVector(word2VectorString);
-                attributeMode.setWord2Vector(word2Vector);
-                String coreVectorString = csvReader.get("coreVector");
-                float[] coreVector = changeStringToVector(coreVectorString);
-                attributeMode.setCoreVector(coreVector);
+                try {
+                    String relationVectorString = csvReader.get("relationVector");
+                    float[] relationVector = changeStringToVector(relationVectorString);
+                    attributeMode.setRelationVector(relationVector);
+                    String word1VectorString = csvReader.get("word1Vector");
+                    float[] word1Vector = changeStringToVector(word1VectorString);
+                    attributeMode.setWord1Vector(word1Vector);
+                    String word2VectorString = csvReader.get("word2Vector");
+                    float[] word2Vector = changeStringToVector(word2VectorString);
+                    attributeMode.setWord2Vector(word2Vector);
+                    String coreVectorString = csvReader.get("coreVector");
+                    float[] coreVector = changeStringToVector(coreVectorString);
+                    attributeMode.setCoreVector(coreVector);
+                } catch (Exception e) {
+                    System.out.println(attributeMode.getId());
+                }
+               
                 String  distance = csvReader.get("distance");
                 if (distance==null||"".equals(distance)) {
                     distance="0";
