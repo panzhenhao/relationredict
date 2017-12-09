@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.uestcnslab.relationpredict.model.AttributeMode;
+import com.uestcnslab.relationpredict.model.AttributeModel;
 import com.uestcnslab.relationpredict.model.ClusterModel;
 import com.uestcnslab.relationpredict.model.DataSetModel;
 import com.uestcnslab.relationpredict.model.SimilarModel;
@@ -69,11 +69,11 @@ public class DataHandler {
 
         //2.加载训练集聚类模型
         String filename = path + "data/train_all_cbow200_classify_cluster_5_relation.csv";
-        List<AttributeMode> attributeModes = CsvFileUtil.loadClusterRelationModel(filename);
+        List<AttributeModel> attributeModes = CsvFileUtil.loadClusterRelationModel(filename);
 
         //3 加载聚类中心
         filename = path + "data/train_core_cbow200_classify_cluster_5_relation.csv";
-        List<AttributeMode> coreAttributeModes = CsvFileUtil.loadClusterRelationModel(filename);
+        List<AttributeModel> coreAttributeModes = CsvFileUtil.loadClusterRelationModel(filename);
 
         //4整合数据模型
         integrateAttributeMode(attributeModes, coreAttributeModes, cbowModel);
@@ -90,18 +90,18 @@ public class DataHandler {
      *
      * @since JDK 1.8
      */
-    private static void integrateAttributeMode(List<AttributeMode> attributeModes,
-                                               List<AttributeMode> coreAttributeModes,
+    private static void integrateAttributeMode(List<AttributeModel> attributeModes,
+                                               List<AttributeModel> coreAttributeModes,
                                                WordVectorModel wordVectorModel) {
         //词向量模型
         Map<String, float[]> wordMap = wordVectorModel.getWordMap();
         //聚类中心个数
         int n = coreAttributeModes.size() / 9;
-        Map<String, AttributeMode[]> coreMap = new HashMap<String, AttributeMode[]>();
-        for (AttributeMode coreAttributeMode : coreAttributeModes) {
+        Map<String, AttributeModel[]> coreMap = new HashMap<String, AttributeModel[]>();
+        for (AttributeModel coreAttributeMode : coreAttributeModes) {
             addToCoreMap(coreMap, coreAttributeMode, n);
         }
-        for (AttributeMode attributeMode : attributeModes) {
+        for (AttributeModel attributeMode : attributeModes) {
             String relation = attributeMode.getRelation();
             String word1 = attributeMode.getWord1();
             String word2 = attributeMode.getWord2();
@@ -125,15 +125,15 @@ public class DataHandler {
      *
      * @since JDK 1.8
      */
-    private static void addToCoreMap(Map<String, AttributeMode[]> coreMap,
-                                     AttributeMode attributeMode, int n) {
+    private static void addToCoreMap(Map<String, AttributeModel[]> coreMap,
+                                     AttributeModel attributeMode, int n) {
         String coreRelation = attributeMode.getRelation();
         int id = attributeMode.getId();
         int index = id % n;
         if (coreMap.containsKey(coreRelation)) {
             coreMap.get(coreRelation)[index] = attributeMode;
         } else {
-            AttributeMode[] attributeModes = new AttributeMode[n];
+            AttributeModel[] attributeModes = new AttributeModel[n];
             attributeModes[index] = attributeMode;
             coreMap.put(coreRelation, attributeModes);
         }

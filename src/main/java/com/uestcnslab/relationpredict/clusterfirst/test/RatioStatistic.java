@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import com.uestcnslab.relationpredict.model.AttributeMode;
+import com.uestcnslab.relationpredict.model.AttributeModel;
 import com.uestcnslab.relationpredict.model.DataSetModel;
 import com.uestcnslab.relationpredict.model.WordVecPoint;
 import com.uestcnslab.relationpredict.model.WordVectorModel;
@@ -55,7 +55,7 @@ public class RatioStatistic {
         String path = LoadModel.class.getClass().getResource("/").getPath();
         //1.加载训练集聚类模型
         String filename = path + "cluster-first-data/train_cbow200_50_all.csv";
-        List<AttributeMode> attributeModes = CsvFileUtil.loadClusterRelationModel(filename);
+        List<AttributeModel> attributeModes = CsvFileUtil.loadClusterRelationModel(filename);
         logger.info("第一阶段：聚类模型加载完成！");
 
         //2.各个聚类中心数据条数key：聚类中心value：条数
@@ -82,25 +82,13 @@ public class RatioStatistic {
         List<DataSetModel> testSet = CsvFileUtil.loadDataSet(filename);
         
         //8.计算关系向量模型
-        List<WordVecPoint> relationVec = WordVecModelTransferUtil.getRelationVec(testSet,
-            model);
-        List<AttributeMode> testAttributeModes = new ArrayList<AttributeMode>();
+        List<AttributeModel> testAttributeModes = changeAttributeModel(model, testSet);
         
-        for (DataSetModel dataSetModel : testSet) {
-            AttributeMode attributeMode = new AttributeMode();
-            attributeMode.setRelation(dataSetModel.getRelation());
-            attributeMode.setWord1(dataSetModel.getWordFirst());
-            attributeMode.setWord2(dataSetModel.getWordEnd());
-            attributeMode.setWord1Vector(model.getWordMap().get(attributeMode.getWord1()));
-            attributeMode.setWord2Vector(model.getWordMap().get(attributeMode.getWord2()));
-            //attributeMode.setRelationVector(relationVector);
-            
-        }
-        
+
         List<String> data = new ArrayList<String>();
         for (int i = 0; i < distribution.length; i++) {
-            String trainRelation = DataUtil.idRelationMap.get(i);
-            for (AttributeMode attributeMode: attributeModes) {
+            String testRelation = DataUtil.idRelationMap.get(i);
+            for (AttributeModel attributeMode: testAttributeModes) {
                 float[] dis = new float[distribution[0].length+1];
                 String relation = attributeMode.getRelation();
                 float[] relationVector = attributeMode.getRelationVector();
@@ -110,7 +98,7 @@ public class RatioStatistic {
                     //占比*距离倒数              
                     dis[key] =  (float) (distribution[i][key]/distance); 
                 }
-                if (trainRelation.equals(relation)) {
+                if (testRelation.equals(relation)) {
                         dis[dis.length-1] = 1;
                 }else {
                         dis[dis.length-1] = 0;
@@ -121,10 +109,47 @@ public class RatioStatistic {
                     data.add(str);
 
             } 
-            filename = System.getProperty("user.dir")+"/src/main/resources/cluster-first-data/train_"+trainRelation+"_"+coreMap.keySet().size();
+            filename = System.getProperty("user.dir")+"/src/main/resources/cluster-first-data/test_"+testRelation+"_"+coreMap.keySet().size();
             writeFile(filename,data);
         }
         
+    }
+
+    private static List<AttributeModel> changeAttributeModel(WordVectorModel model,
+                                                            List<DataSetModel> testSet) {
+        List<AttributeModel> testAttributeModes = new ArrayList<AttributeModel>();
+        
+        for (DataSetModel dataSetModel : testSet) {
+            AttributeModel attributeMode = new AttributeModel();
+            attributeMode.setRelation(dataSetModel.getRelation());
+            attributeMode.setWord1(dataSetModel.getWordFirst());
+            attributeMode.setWord2(dataSetModel.getWordEnd());
+            attributeMode.setWord1Vector(model.getWordMap().get(attributeMode.getWord1()));
+            attributeMode.setWord2Vector(model.getWordMap().get(attributeMode.getWord2()));
+            float[] relationVector = getRelationVector(attributeMode);
+            attributeMode.setRelationVector(relationVector);
+            testAttributeModes.add(attributeMode);
+        }
+        return testAttributeModes;
+    }
+
+    /** 
+     * getRelationVector:(这里用一句话描述这个方法的作用). <br/> 
+     * 
+     * @author pzh 
+     * @param attributeMode
+     * @return 
+     *
+     * @since JDK 1.8 
+     */ 
+    private static float[] getRelationVector(AttributeModel attributeMode) {
+        float[] relationVector = new float[attributeMode.getWord1Vector().length];
+        float[] word1Vector = attributeMode.getWord1Vector();
+        float[] word2Vector = attributeMode.getWord2Vector();
+        for (int i = 0; i < word2Vector.length; i++) {
+            relationVector[i] = word1Vector[i]-word2Vector[i];
+        }
+        return relationVector;
     }
 
     /** 
@@ -161,9 +186,9 @@ public class RatioStatistic {
      *
      * @since JDK 1.8 
      */ 
-    private static Map<Integer, float[]> getCoreMap(List<AttributeMode> attributeModes) {
+    private static Map<Integer, float[]> getCoreMap(List<AttributeModel> attributeModes) {
         Map<Integer, float[]> coreMap = new HashMap<Integer, float[]>();
-        for (AttributeMode attributeMode: attributeModes) {
+        for (AttributeModel attributeMode: attributeModes) {
             int flag = attributeMode.getFlag()-1;
             float[] vector = attributeMode.getCoreVector();
             if (coreMap.containsKey(flag)) {
@@ -206,13 +231,13 @@ public class RatioStatistic {
      *
      * @since JDK 1.8 
      */ 
-    private static int[][] getRelationDistribution(List<AttributeMode> attributeModes,
+    private static int[][] getRelationDistribution(List<AttributeModel> attributeModes,
                                                    Map<Integer, Integer> coreData) {
         //聚类中心个数
         int core = coreData.keySet().size();
         int relationType = DataUtil.trainSetRelations.keySet().size();
         int[][] relationCoreData = new int[relationType][core];
-        for (AttributeMode attributeMode : attributeModes) {
+        for (AttributeModel attributeMode : attributeModes) {
             //哪一行
             String relation = attributeMode.getRelation();
             int line = DataUtil.relationIdMap.get(relation);
@@ -232,9 +257,9 @@ public class RatioStatistic {
      *
      * @since JDK 1.8 
      */ 
-    private static Map<Integer, Integer> countCoreData(List<AttributeMode> attributeModes) {
+    private static Map<Integer, Integer> countCoreData(List<AttributeModel> attributeModes) {
         Map<Integer, Integer> coreData = new HashMap<Integer, Integer>();
-        for (AttributeMode attributeMode : attributeModes) {
+        for (AttributeModel attributeMode : attributeModes) {
             Integer key = attributeMode.getFlag();
             if (coreData.containsKey(key)) {
                 coreData.put(key, coreData.get(key) + 1);

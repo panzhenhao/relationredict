@@ -20,7 +20,7 @@ import java.util.List;
 
 import com.csvreader.CsvReader;
 import com.csvreader.CsvWriter;
-import com.uestcnslab.relationpredict.model.AttributeMode;
+import com.uestcnslab.relationpredict.model.AttributeModel;
 import com.uestcnslab.relationpredict.model.ClusterModel;
 import com.uestcnslab.relationpredict.model.DataSetModel;
 
@@ -82,10 +82,10 @@ public class CsvFileUtil {
      *
      * @since JDK 1.8 
      */ 
-    public static void writeDataClusterToCsv(String filename, List<AttributeMode> attributeModes) {
+    public static void writeDataClusterToCsv(String filename, List<AttributeModel> attributeModes) {
         String[] headers = { "id", "relation", "word1", "word2", "flag", "relationVector","word1Vector","word2Vector","coreVector","distance" };
         List<String[]> list = new ArrayList<String[]>();
-        for (AttributeMode attributeMode : attributeModes) {
+        for (AttributeModel attributeMode : attributeModes) {
             String id = String.valueOf(attributeMode.getId());
             String relation = attributeMode.getRelation();
             String word1 = attributeMode.getWord1();
@@ -135,15 +135,15 @@ public class CsvFileUtil {
      *
      * @since JDK 1.8 
      */ 
-    public static List<AttributeMode> loadClusterRelationModel(String filename) {
-        List<AttributeMode> attributeModes = new ArrayList<AttributeMode>();
+    public static List<AttributeModel> loadClusterRelationModel(String filename) {
+        List<AttributeModel> attributeModes = new ArrayList<AttributeModel>();
         try {
             // 创建CSV读对象
             CsvReader csvReader = new CsvReader(filename);
             // 读表头
             csvReader.readHeaders();
             while (csvReader.readRecord()) {
-                AttributeMode attributeMode = new AttributeMode();
+                AttributeModel attributeMode = new AttributeModel();
                 attributeMode.setId(Integer.parseInt(csvReader.get("id")));
                 attributeMode.setRelation(csvReader.get("relation"));
                 attributeMode.setWord1(csvReader.get("word1"));

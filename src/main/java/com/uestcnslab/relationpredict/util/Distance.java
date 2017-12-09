@@ -9,7 +9,7 @@
 
 package com.uestcnslab.relationpredict.util;
 
-import com.uestcnslab.relationpredict.model.AttributeMode;
+import com.uestcnslab.relationpredict.model.AttributeModel;
 import com.uestcnslab.relationpredict.model.ClusterModel;
 import com.uestcnslab.relationpredict.model.WordVecPoint;
 import com.uestcnslab.relationpredict.model.WordVecRelationModel;
@@ -119,7 +119,7 @@ public class Distance {
      *
      * @since JDK 1.8 
      */ 
-    public static double pointDistance(AttributeMode attributeMode) {
+    public static double pointDistance(AttributeModel attributeMode) {
         float[] f1 = attributeMode.getCoreVector();
         float[] f2 = attributeMode.getRelationVector();
         double sum = 0;

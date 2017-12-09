@@ -48,7 +48,7 @@ public class Kmeans2 {
     /**
      * @Fields iterMax : 默认次数
      */
-    private int                           iterMax = 1000;
+    private int                           iterMax = 10000;
 
     /**
      * initOldCore:初始化聚类中心. <br/>
@@ -205,7 +205,7 @@ public class Kmeans2 {
         for (int i = 0; i < oldCore.length; i++) {
             movedistance = Distance.pointDistance(oldCore[i], newCore[i]);
             logger.debug("distcore:" + movedistance);//聚类中心的移动距离
-            if (movedistance < 0.1) {
+            if (movedistance < 0.001) {
                 iter = iterMax;
             } else {
                 iter++;//需要继续迭代，

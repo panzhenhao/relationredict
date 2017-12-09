@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import com.uestcnslab.relationpredict.model.AttributeMode;
+import com.uestcnslab.relationpredict.model.AttributeModel;
 import com.uestcnslab.relationpredict.model.WordVecRelationModel;
 import com.uestcnslab.relationpredict.model.WordVectorModel;
 import com.uestcnslab.relationpredict.util.CsvFileUtil;
@@ -50,13 +50,13 @@ public class ModelComplement {
         logger.info("第一阶段：模型加载完成！");
 
         //2.加载训练集聚类模型
-        String filename = path + "cluster-first-data/train_all_cbow200_50.csv";
-        List<AttributeMode> attributeModes = CsvFileUtil.loadClusterRelationModel(filename);
+        String filename = path + "cluster-first-data/train_all_cbow200_25.csv";
+        List<AttributeModel> attributeModes = CsvFileUtil.loadClusterRelationModel(filename);
         logger.info("第二阶段：训练集聚类模型加载完成！");
         
         //3 加载聚类中心
-        filename = path + "cluster-first-data/train_core_cbow200_50.csv";
-        List<AttributeMode> coreAttributeModes = CsvFileUtil.loadClusterRelationModel(filename);
+        filename = path + "cluster-first-data/train_core_cbow200_25.csv";
+        List<AttributeModel> coreAttributeModes = CsvFileUtil.loadClusterRelationModel(filename);
         logger.info("第三阶段：聚类中心模型加载完成！");
         
         //4 整合数据模型
@@ -64,7 +64,7 @@ public class ModelComplement {
         logger.info("第四阶段：整合数据模型完成！");
         
         //5 完整数据模型
-        filename = System.getProperty("user.dir")+"/src/main/resources/cluster-first-data/train_cbow200_50_all.csv";
+        filename = System.getProperty("user.dir")+"/src/main/resources/cluster-first-data/train_cbow200_25_all.csv";
         CsvFileUtil.writeDataClusterToCsv(filename, attributeModes);
         logger.info("第五阶段：数据集全属性文件csv完成！");
     }
@@ -79,17 +79,17 @@ public class ModelComplement {
      *
      * @since JDK 1.8
      */
-    private static void integrateAttributeMode(List<AttributeMode> attributeModes,
-                                               List<AttributeMode> coreAttributeModes,
+    private static void integrateAttributeMode(List<AttributeModel> attributeModes,
+                                               List<AttributeModel> coreAttributeModes,
                                                WordVectorModel wordVectorModel) {
         //词向量模型
         Map<String, float[]> wordMap = wordVectorModel.getWordMap();
      
-        Map<Integer, AttributeMode> coreMap = new HashMap<Integer, AttributeMode>();
-        for (AttributeMode coreAttributeMode : coreAttributeModes) {
+        Map<Integer, AttributeModel> coreMap = new HashMap<Integer, AttributeModel>();
+        for (AttributeModel coreAttributeMode : coreAttributeModes) {
             coreMap.put(coreAttributeMode.getId(), coreAttributeMode);
         }
-        for (AttributeMode attributeMode : attributeModes) {
+        for (AttributeModel attributeMode : attributeModes) {
             String word1 = attributeMode.getWord1();
             String word2 = attributeMode.getWord2();
             int flag = attributeMode.getFlag();
