@@ -50,12 +50,12 @@ public class ModelComplement {
         logger.info("第一阶段：模型加载完成！");
 
         //2.加载训练集聚类模型
-        String filename = path + "cluster-first-data/train_all_cbow200_25.csv";
+        String filename = path + "cluster-first-data/train_all_cbow200_10.csv";
         List<AttributeModel> attributeModes = CsvFileUtil.loadClusterRelationModel(filename);
         logger.info("第二阶段：训练集聚类模型加载完成！");
         
         //3 加载聚类中心
-        filename = path + "cluster-first-data/train_core_cbow200_25.csv";
+        filename = path + "cluster-first-data/train_core_cbow200_10.csv";
         List<AttributeModel> coreAttributeModes = CsvFileUtil.loadClusterRelationModel(filename);
         logger.info("第三阶段：聚类中心模型加载完成！");
         
@@ -64,7 +64,7 @@ public class ModelComplement {
         logger.info("第四阶段：整合数据模型完成！");
         
         //5 完整数据模型
-        filename = System.getProperty("user.dir")+"/src/main/resources/cluster-first-data/train_cbow200_25_all.csv";
+        filename = System.getProperty("user.dir")+"/src/main/resources/cluster-first-data/train_cbow200_10_all.csv";
         CsvFileUtil.writeDataClusterToCsv(filename, attributeModes);
         logger.info("第五阶段：数据集全属性文件csv完成！");
     }

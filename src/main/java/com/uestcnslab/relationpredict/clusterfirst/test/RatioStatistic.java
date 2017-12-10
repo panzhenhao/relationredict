@@ -54,7 +54,7 @@ public class RatioStatistic {
 
         String path = LoadModel.class.getClass().getResource("/").getPath();
         //1.加载训练集聚类模型
-        String filename = path + "cluster-first-data/train_cbow200_50_all.csv";
+        String filename = path + "cluster-first-data/train_cbow200_10_all.csv";
         List<AttributeModel> attributeModes = CsvFileUtil.loadClusterRelationModel(filename);
         logger.info("第一阶段：聚类模型加载完成！");
 
@@ -85,9 +85,10 @@ public class RatioStatistic {
         List<AttributeModel> testAttributeModes = changeAttributeModel(model, testSet);
         
 
-        List<String> data = new ArrayList<String>();
         for (int i = 0; i < distribution.length; i++) {
+            List<String> data = new ArrayList<String>();
             String testRelation = DataUtil.idRelationMap.get(i);
+            int count = 0;
             for (AttributeModel attributeMode: testAttributeModes) {
                 float[] dis = new float[distribution[0].length+1];
                 String relation = attributeMode.getRelation();
@@ -100,6 +101,7 @@ public class RatioStatistic {
                 }
                 if (testRelation.equals(relation)) {
                         dis[dis.length-1] = 1;
+                        count++;
                 }else {
                         dis[dis.length-1] = 0;
                 }
@@ -109,6 +111,8 @@ public class RatioStatistic {
                     data.add(str);
 
             } 
+            System.out.println(count);
+            System.out.println(data.size());
             filename = System.getProperty("user.dir")+"/src/main/resources/cluster-first-data/test_"+testRelation+"_"+coreMap.keySet().size();
             writeFile(filename,data);
         }
