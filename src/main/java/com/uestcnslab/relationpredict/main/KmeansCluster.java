@@ -38,7 +38,7 @@ public class KmeansCluster {
     public static void main(String[] args) throws Exception {
         //1.加载数据集
         String path = CsvFileUtil.class.getClass().getResource("/").getPath();
-        String filename = path + "data/trainset.csv";
+        String filename = path + "classify-first-data/trainset.csv";
         List<DataSetModel> DataSet = CsvFileUtil.loadDataSet(filename);
 
         //2.加载模型
@@ -60,9 +60,9 @@ public class KmeansCluster {
             5);
 
         //５.回写文件
-        filename = "/home/pzh/git/relationredict/src/main/resources/data/train_core_cbow200_classify_cluster_5.csv";
+        filename = "/home/pzh/git/relationredict/src/main/resources/classify-first-data/train_core_cbow200_classify_cluster_5.csv";
         writeDataClusterToCsv(filename, classifyAndClusterResult.get(0));
-        filename = "/home/pzh/git/relationredict/src/main/resources/data/train_all_cbow200_classify_cluster_5.csv";
+        filename = "/home/pzh/git/relationredict/src/main/resources/classify-first-data/train_all_cbow200_classify_cluster_5.csv";
         writeDataClusterToCsv(filename, classifyAndClusterResult.get(1));
     }
 

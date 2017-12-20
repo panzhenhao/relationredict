@@ -51,14 +51,14 @@ public class KmeansCluster {
 		logger.info("第三阶段：关系向量模型计算完成！");
 
 		// ４.1聚类
-		List<WordVecRelationModel[]> clusterResult = useKmeans(relationVec, 30);
+		List<WordVecRelationModel[]> clusterResult = useKmeans(relationVec, 40);
 		logger.info("第四阶段：聚类模型计算完成！");
 		
 		// ５.回写文件
-		filename = System.getProperty("user.dir")+"/src/main/resources/cluster-first-data/train_core_cbow200_30.csv";
+		filename = System.getProperty("user.dir")+"/src/main/resources/cluster-first-data/train_core_cbow200_40.csv";
 		writeDataClusterToCsv(filename, clusterResult.get(0));
 		logger.info("第五阶段1：聚类中心文件csv完成！");
-		filename = System.getProperty("user.dir")+"/src/main/resources/cluster-first-data/train_all_cbow200_30.csv";
+		filename = System.getProperty("user.dir")+"/src/main/resources/cluster-first-data/train_all_cbow200_40.csv";
 		writeDataClusterToCsv(filename, clusterResult.get(1));
 		logger.info("第五阶段2：聚类数据集文件csv完成！");
 	}

@@ -54,7 +54,7 @@ public class RatioStatistic {
 
         String path = LoadModel.class.getClass().getResource("/").getPath();
         //1.加载训练集聚类模型
-        String filename = path + "cluster-first-data/train_cbow200_10_all.csv";
+        String filename = path + "cluster-first-data/train_cbow200_60_all.csv";
         List<AttributeModel> attributeModes = CsvFileUtil.loadClusterRelationModel(filename);
         logger.info("第一阶段：聚类模型加载完成！");
 

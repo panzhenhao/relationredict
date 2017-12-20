@@ -73,17 +73,19 @@ public class CsvFileUtil {
         list.add(content);
         csvWrite("/home/pzh/git/relationredict/src/main/resources/data/test.csv", headers, list);
     }
-    /** 
-     * writeDataClusterToCsv:(这里用一句话描述这个方法的作用). <br/> 
+
+    /**
+     * writeDataClusterToCsv:(这里用一句话描述这个方法的作用). <br/>
      * 
-     * @author pzh 
+     * @author pzh
      * @param filename
-     * @param attributeModes 
+     * @param attributeModes
      *
-     * @since JDK 1.8 
-     */ 
+     * @since JDK 1.8
+     */
     public static void writeDataClusterToCsv(String filename, List<AttributeModel> attributeModes) {
-        String[] headers = { "id", "relation", "word1", "word2", "flag", "relationVector","word1Vector","word2Vector","coreVector","distance" };
+        String[] headers = { "id", "relation", "word1", "word2", "flag", "relationVector",
+                             "word1Vector", "word2Vector", "coreVector", "distance" };
         List<String[]> list = new ArrayList<String[]>();
         for (AttributeModel attributeMode : attributeModes) {
             String id = String.valueOf(attributeMode.getId());
@@ -96,11 +98,13 @@ public class CsvFileUtil {
             String word2Vector = Arrays.toString(attributeMode.getWord2Vector());
             String coreVector = Arrays.toString(attributeMode.getCoreVector());
             String distance = String.valueOf(attributeMode.getDistance());
-            String[] content = { id, relation, word1, word2, flag, relationVector, word1Vector,word2Vector,coreVector,distance};
+            String[] content = { id, relation, word1, word2, flag, relationVector, word1Vector,
+                                 word2Vector, coreVector, distance };
             list.add(content);
         }
         CsvFileUtil.csvWrite(filename, headers, list);
     }
+
     /**
      * loadDataSet: 加载训练集合. <br/>
      * 
@@ -126,15 +130,17 @@ public class CsvFileUtil {
         }
         return trainSetModelList;
     }
-    /** 
-     * loadClusterRelationModel:加载csv模型文件. <br/> 
+
+    /**
+     * loadClusterRelationModel:加载csv模型文件. <br/>
      * 
-     * @author pzh 
-     * @param filename 文件路径
-     * @return AttributeMode　list
+     * @author pzh
+     * @param filename
+     *            文件路径
+     * @return AttributeMode list
      *
-     * @since JDK 1.8 
-     */ 
+     * @since JDK 1.8
+     */
     public static List<AttributeModel> loadClusterRelationModel(String filename) {
         List<AttributeModel> attributeModes = new ArrayList<AttributeModel>();
         try {
@@ -151,24 +157,38 @@ public class CsvFileUtil {
                 attributeMode.setFlag(Integer.parseInt(csvReader.get("flag")));
                 try {
                     String relationVectorString = csvReader.get("relationVector");
-                    float[] relationVector = changeStringToVector(relationVectorString);
+                    float[] relationVector = null;
+                    if (relationVectorString != null&&!"null".equals(relationVectorString)) {
+                        relationVector = changeStringToVector(relationVectorString);
+                    }
                     attributeMode.setRelationVector(relationVector);
+
                     String word1VectorString = csvReader.get("word1Vector");
-                    float[] word1Vector = changeStringToVector(word1VectorString);
+                    float[] word1Vector = null;
+                    if (word1VectorString != null&&!"null".equals(word1VectorString)) {
+                        word1Vector = changeStringToVector(word1VectorString);
+                    }
+
                     attributeMode.setWord1Vector(word1Vector);
                     String word2VectorString = csvReader.get("word2Vector");
-                    float[] word2Vector = changeStringToVector(word2VectorString);
+                    float[] word2Vector =null;
+                    if (word2VectorString!=null&&!"null".equals(word2VectorString)) {
+                        word2Vector = changeStringToVector(word2VectorString);
+                    }
                     attributeMode.setWord2Vector(word2Vector);
                     String coreVectorString = csvReader.get("coreVector");
-                    float[] coreVector = changeStringToVector(coreVectorString);
+                    float[] coreVector = null;
+                    if (coreVectorString!=null&&!"null".equals(coreVectorString)) {
+                        coreVector = changeStringToVector(coreVectorString);
+                    }
                     attributeMode.setCoreVector(coreVector);
                 } catch (Exception e) {
                     System.out.println(attributeMode.getId());
                 }
-               
-                String  distance = csvReader.get("distance");
-                if (distance==null||"".equals(distance)) {
-                    distance="0";
+
+                String distance = csvReader.get("distance");
+                if (distance == null || "".equals(distance)) {
+                    distance = "0";
                 }
                 attributeMode.setDistance(Double.parseDouble(distance));
                 attributeModes.add(attributeMode);
@@ -181,17 +201,17 @@ public class CsvFileUtil {
         return attributeModes;
     }
 
-    /** 
-     * changeStringToVector:将字符串［１，１］转为向量　float[]形式. <br/> 
+    /**
+     * changeStringToVector:将字符串［１，１］转为向量 float[]形式. <br/>
      * 
-     * @author pzh 
+     * @author pzh
      * @param string
-     * @return 
+     * @return
      *
-     * @since JDK 1.8 
-     */ 
+     * @since JDK 1.8
+     */
     private static float[] changeStringToVector(String string) {
-        if (string==null||"".equals(string)) {
+        if (string == null || "".equals(string)) {
             return null;
         }
         string = string.substring(1, string.length() - 1);
@@ -202,6 +222,7 @@ public class CsvFileUtil {
         }
         return vector;
     }
+
     /**
      * loadClusterModel:加载聚类模型. <br/>
      * 

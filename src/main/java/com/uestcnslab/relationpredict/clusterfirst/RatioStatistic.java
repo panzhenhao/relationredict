@@ -38,6 +38,8 @@ public class RatioStatistic {
      */
     private static Logger logger = Logger.getLogger("ModelComplement");
 
+    //标签标记聚类中心开始是否从0开始，label=0从0开始label=1从1开始
+    static int label = 1;
     /**
      * main:(这里用一句话描述这个方法的作用). <br/>
      * 
@@ -50,10 +52,19 @@ public class RatioStatistic {
 
         String path = LoadModel.class.getClass().getResource("/").getPath();
         //1.加载训练集聚类模型
-        String filename = path + "cluster-first-data/train_cbow200_10_all.csv";
+        String filename = path + "cluster-first-data/train_all_cbow200_40_sc.csv";
         List<AttributeModel> attributeModes = CsvFileUtil.loadClusterRelationModel(filename);
         logger.info("第一阶段：聚类模型加载完成！");
 
+        for (AttributeModel attributeMode : attributeModes) {
+           
+            //哪一列:需要减一
+            int flag = attributeMode.getFlag();
+            if (flag==0) {
+                label = 0;
+                break;
+            }
+        }
         //2.各个聚类中心数据条数key：聚类中心value：条数
         Map<Integer, Integer> coreData = countCoreData(attributeModes);
         logger.info("第二阶段：聚类中心条数统计完成！");
@@ -163,7 +174,13 @@ public class RatioStatistic {
     private static Map<Integer, float[]> getCoreMap(List<AttributeModel> attributeModes) {
         Map<Integer, float[]> coreMap = new HashMap<Integer, float[]>();
         for (AttributeModel attributeMode : attributeModes) {
-            int flag = attributeMode.getFlag() - 1;
+            int flag;
+            if (label==1) {
+                flag = attributeMode.getFlag() - 1;
+            }else {
+                flag = attributeMode.getFlag();  
+            }
+            
             float[] vector = attributeMode.getCoreVector();
             if (coreMap.containsKey(flag)) {
                 continue;
@@ -189,7 +206,12 @@ public class RatioStatistic {
         float[][] distribution = new float[relationCoreData.length][relationCoreData[0].length];
         for (int i = 0; i < relationCoreData.length; i++) {
             for (int j = 0; j < relationCoreData[i].length; j++) {
-                distribution[i][j] = (float) relationCoreData[i][j] / coreData.get(j + 1);
+                if (label==1) {
+                    distribution[i][j] = (float) relationCoreData[i][j] / coreData.get(j + 1); 
+                }else {
+                    distribution[i][j] = (float) relationCoreData[i][j] / coreData.get(j);
+                }
+                
             }
         }
         return distribution;
@@ -211,13 +233,18 @@ public class RatioStatistic {
         int core = coreData.keySet().size();
         int relationType = DataUtil.trainSetRelations.keySet().size();
         int[][] relationCoreData = new int[relationType][core];
+        
         for (AttributeModel attributeMode : attributeModes) {
             //哪一行
             String relation = attributeMode.getRelation();
             int line = DataUtil.relationIdMap.get(relation);
             //哪一列:需要减一
             int flag = attributeMode.getFlag();
-            relationCoreData[line][flag - 1]++;
+            if (label==1) {
+                relationCoreData[line][flag - 1]++;
+            }else {
+                relationCoreData[line][flag]++; 
+            }        
         }
         return relationCoreData;
     }
